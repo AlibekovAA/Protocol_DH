@@ -18,22 +18,7 @@ def log_action(action):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_entry = f"{current_time}: {action}\n"
     log_text.insert(tk.END, log_entry)
-
-
-def display_logs():
-    log_filename = simpledialog.askstring("Показать логи", "Введите название текстового файла для просмотра логов:")
-    if log_filename:
-        try:
-            with open(log_filename, 'r') as log_file:
-                log_content = log_file.read()
-                log_display = tk.Toplevel(root)
-                log_display.title("Логи")
-                log_display.geometry("800x400")
-                log_text = tk.Text(log_display, wrap=tk.WORD, width=80, height=20)
-                log_text.insert(tk.END, log_content)
-                log_text.pack()
-        except Exception as e:
-            messagebox.showerror("Ошибка", f"Ошибка при открытии файла с логами: {str(e)}")
+    # logging.info(action)
 
 
 def save_logs_to_file():
@@ -480,7 +465,7 @@ def create_chat(user1_name, user2_name, chat_messages, chat_displays, user_secre
 
     send_button.pack()
 
-    close_button = tk.Button(chat_window, text="Разорвать соединение",
+    close_button = tk.Button(chat_window, text="Закрыть",
                              command=lambda: exit_button(user1_name, user2_name, connections, user_secret_keys))
     close_button.pack()
 
@@ -529,8 +514,5 @@ log_text.grid(row=8, column=0, columnspan=4, padx=10, pady=10)
 
 save_logs_button = tk.Button(button_frame, text="Сохранить логи", command=save_logs_to_file)
 save_logs_button.pack(side="left", padx=5)
-
-display_logs_button = tk.Button(button_frame, text="Показать логи", command=display_logs)
-display_logs_button.pack(side="left", padx=5)
 
 root.mainloop()
