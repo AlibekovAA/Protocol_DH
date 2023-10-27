@@ -11,33 +11,33 @@ from tkinter import Text
 from math import gcd as bltin_gcd
 import ctypes
 
-logging.basicConfig(filename='../app.log', level=logging.INFO, filemode='w')
-formatter = logging.Formatter('%(asctime)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-root_logger = logging.getLogger()
-for handler in root_logger.handlers:
-    handler.setFormatter(formatter)
+logging.basicConfig(level=logging.INFO)
 
 
 def log_action(action):
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_entry = f"{action}"
-    logging.info(log_entry)
+    log_entry = f"{current_time}: {action}\n"
+    log_text.insert(tk.END, log_entry)
 
 
 def display_logs():
-    try:
-        with open('../app.log', 'r') as log_file:
-            logs = log_file.read()
-            log_text.delete(1.0, tk.END)
-            log_text.insert(tk.END, logs)
-    except FileNotFoundError:
-        log_text.delete(1.0, tk.END)
-        log_text.insert(tk.END, "Лог-файл не найден.")
+    log_filename = simpledialog.askstring("Показать логи", "Введите название текстового файла для просмотра логов:")
+    if log_filename:
+        try:
+            with open(log_filename, 'r') as log_file:
+                log_content = log_file.read()
+                log_display = tk.Toplevel(root)
+                log_display.title("Логи")
+                log_display.geometry("800x400")
+                log_text = tk.Text(log_display, wrap=tk.WORD, width=80, height=20)
+                log_text.insert(tk.END, log_content)
+                log_text.pack()
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Ошибка при открытии файла с логами: {str(e)}")
 
 
 def save_logs_to_file():
     logs = log_text.get(1.0, tk.END)
-    root.iconbitmap('lion.ico')
     filename = simpledialog.askstring("Сохранить логи", "Введите название текстового файла для сохранения логов:")
     if filename:
         filename = filename + ".txt"
@@ -137,7 +137,6 @@ def create_private_key_window(users, connections, chat_messages, chat_displays, 
     private_key_window = tk.Toplevel(root)
     private_key_window.title("Введите закрытый ключ")
     private_key_window.geometry("300x150")
-    private_key_window.iconbitmap('lion.ico')
 
     def create_connection_with_private_key(users, connections, chat_messages, chat_displays, existing_user_name,
                                            user_secret_keys, connection_windows):
@@ -180,7 +179,6 @@ def create_user_window(users, connections, chat_messages, chat_displays, user_se
     user_window = tk.Toplevel(root)
     user_window.title("Создать пользователя")
     user_window.geometry("300x150")
-    user_window.iconbitmap('lion.ico')
 
     def create_user_and_connection(users, connections, chat_messages, chat_displays, user_secret_keys,
                                    connection_windows):
@@ -231,7 +229,6 @@ def show_user_list(users):
     user_list_window = tk.Toplevel(root)
     user_list_window.title("Список пользователей")
     user_list_window.geometry("400x300")
-    user_list_window.iconbitmap('lion.ico')
 
     user_list_label = tk.Label(user_list_window, text="Список пользователей:")
     user_list_label.pack()
@@ -249,7 +246,6 @@ def create_connection_window(users, connections, chat_messages, chat_displays, u
     connection_window.title(f"{user1_name}")
     connection_window.geometry("600x400")
     connection_windows[user1_name] = connection_window
-    connection_window.iconbitmap('lion.ico')
 
     def create_connection(users, connections, chat_messages, chat_displays, user1_name, user1_key, user1_private_key,
                           user_secret_keys):
@@ -438,7 +434,6 @@ def create_chat(user1_name, user2_name, chat_messages, chat_displays, user_secre
     chat_window = tk.Toplevel(root)
     chat_window.title(f"{user1_name}")
     chat_window.geometry("600x600")
-    chat_window.iconbitmap('telegram.ico')
 
     chat_display = tk.Text(chat_window, wrap=tk.WORD, state=tk.DISABLED)
     chat_display.pack(fill=tk.BOTH, expand=True)
@@ -485,7 +480,7 @@ def create_chat(user1_name, user2_name, chat_messages, chat_displays, user_secre
 
     send_button.pack()
 
-    close_button = tk.Button(chat_window, text="Закрыть",
+    close_button = tk.Button(chat_window, text="Разорвать соединение",
                              command=lambda: exit_button(user1_name, user2_name, connections, user_secret_keys))
     close_button.pack()
 
@@ -493,7 +488,6 @@ def create_chat(user1_name, user2_name, chat_messages, chat_displays, user_secre
 root = tk.Tk()
 root.title("Diffie-Hellman")
 root.geometry("950x400")
-root.iconbitmap('lion.ico')
 users_filename = "users.json"
 users = load_users_from_file(users_filename)
 connections = {}
@@ -533,10 +527,10 @@ show_parameters_button.pack(side="left", padx=5)
 log_text = Text(root, wrap=tk.WORD, width=110, height=20)
 log_text.grid(row=8, column=0, columnspan=4, padx=10, pady=10)
 
-display_logs_button = tk.Button(button_frame, text="Показать логи", command=display_logs)
-display_logs_button.pack(side="left", padx=5)
-
 save_logs_button = tk.Button(button_frame, text="Сохранить логи", command=save_logs_to_file)
 save_logs_button.pack(side="left", padx=5)
+
+display_logs_button = tk.Button(button_frame, text="Показать логи", command=display_logs)
+display_logs_button.pack(side="left", padx=5)
 
 root.mainloop()
